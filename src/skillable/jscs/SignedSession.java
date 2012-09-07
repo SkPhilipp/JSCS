@@ -67,7 +67,7 @@ public class SignedSession extends HashMap<String, Object> {
 
 	/**
 	 * Loads a SignedSession from an HttpServletRequest, verifies it with the
-	 * given ObjectSigner.
+	 * given ObjectSigner, returns null if there is no SignedSession active.
 	 */
 	public static SignedSession load(HttpServletRequest req, ObjectSigner signer) {
 		for (Cookie cookie : req.getCookies()) {
@@ -76,6 +76,24 @@ public class SignedSession extends HashMap<String, Object> {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Loads a SignedSession from an HttpServletRequest, verifies it with the
+	 * given ObjectSigner.
+	 */
+	public static SignedSession load(HttpServletRequest req,
+			ObjectSigner signer, boolean create) {
+		for (Cookie cookie : req.getCookies()) {
+			if (CookieName.equals(cookie.getName())) {
+				return SignedSession.fromCookie(cookie, signer);
+			}
+		}
+		if (create) {
+			return new SignedSession();
+		} else {
+			return null;
+		}
 	}
 
 }
