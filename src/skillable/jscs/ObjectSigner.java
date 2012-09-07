@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -17,26 +18,45 @@ import java.security.SignatureException;
 import java.security.SignedObject;
 
 public class ObjectSigner {
+	private final KeyPairGenerator keyGen;
+	private final SecureRandom random;
 
-	private final PrivateKey Private;
-	private final PublicKey Public;
-	private final Signature PrivateSig;
-	private final Signature PublicSig;
+	private PrivateKey Private;
+	private PublicKey Public;
+	private Signature PrivateSig;
+	private Signature PublicSig;
 
-	public ObjectSigner() {
+	public ObjectSigner(String seedString) {
 		try {
-			KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
-			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-			keyGen.initialize(1024, random);
-			random.setSeed(1);
-			KeyPair pair = keyGen.generateKeyPair();
-			Private = pair.getPrivate();
-			Public = pair.getPublic();
-			PrivateSig = Signature.getInstance(Private.getAlgorithm());
-			PublicSig = Signature.getInstance(Public.getAlgorithm());
+			keyGen = KeyPairGenerator.getInstance("DSA");
+			random = SecureRandom.getInstance("SHA1PRNG");
+			seed(seedString);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new AssertionError("Aborting.");
+			throw new AssertionError("DSA or SHA1PRNG unknown, aborting.");
+		}
+	}
+
+	public ObjectSigner() {
+		this(null);
+	}
+
+	/**
+	 * Seeds the PRNG and generates a new KeyPair
+	 */
+	public void seed(String seed) {
+		if (seed != null) {
+			random.setSeed(seed.getBytes());
+		}
+		keyGen.initialize(1024, random);
+		KeyPair pair = keyGen.generateKeyPair();
+		Private = pair.getPrivate();
+		Public = pair.getPublic();
+		try {
+			PrivateSig = Signature.getInstance(Private.getAlgorithm());
+			PublicSig = Signature.getInstance(Public.getAlgorithm());
+		} catch (NoSuchAlgorithmException e) {
+			// Can't even happen here.
 		}
 	}
 

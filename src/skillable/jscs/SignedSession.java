@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 public class SignedSession extends HashMap<String, Object> {
 
 	private static final long serialVersionUID = 1L;
-	private static final ObjectSigner signer = new ObjectSigner();
 
 	private final Long timestamp;
 
@@ -37,10 +36,7 @@ public class SignedSession extends HashMap<String, Object> {
 		SignedSession.CookieName = newName;
 	}
 
-	/**
-	 * Converts this object to a Cookie
-	 */
-	public Cookie toCookie() {
+	public Cookie toCookie(ObjectSigner signer) {
 		try {
 			return new Cookie(CookieName, new String(signer.toBytes(this)));
 		} catch (Exception e) {
@@ -48,36 +44,35 @@ public class SignedSession extends HashMap<String, Object> {
 		}
 	}
 
-	/**
-	 * Loads a SignedSession from a Cookie
-	 */
-	public static SignedSession fromCookie(Cookie cookie) {
+	public static SignedSession fromCookie(Cookie cookie, ObjectSigner signer) {
 		try {
-			return (SignedSession) signer.fromBytes(cookie.getValue()
-					.getBytes());
+			SignedSession session = (SignedSession) signer.fromBytes(cookie
+					.getValue().getBytes());
+			return session;
 		} catch (Exception e) {
 			return null;
 		}
 	}
 
 	/**
-	 * Stores this object into a Cookie which is then added to the given
-	 * HttpServletResponse.
+	 * Stores this object into a Cookie, signed by the given ObjectSigner, the
+	 * cookie is then added to the given HttpServletResponse.
 	 */
-	public void save(HttpServletResponse resp) {
+	public void save(HttpServletResponse resp, ObjectSigner signer) {
 		try {
-			resp.addCookie(this.toCookie());
+			resp.addCookie(this.toCookie(signer));
 		} catch (Exception e) {
 		}
 	}
 
 	/**
-	 * Loads a SignedSession from an HttpServletRequest.
+	 * Loads a SignedSession from an HttpServletRequest, verifies it with the
+	 * given ObjectSigner.
 	 */
-	public static SignedSession load(HttpServletRequest req) {
+	public static SignedSession load(HttpServletRequest req, ObjectSigner signer) {
 		for (Cookie cookie : req.getCookies()) {
 			if (CookieName.equals(cookie.getName())) {
-				return SignedSession.fromCookie(cookie);
+				return SignedSession.fromCookie(cookie, signer);
 			}
 		}
 		return null;
