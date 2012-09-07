@@ -1,11 +1,13 @@
 Java Signed Cookie Sessions
 ===========================
 
-Because HttpSession is horrible, especially in Google AppEngine. Why store all data server side,
+_Inspired by PlayFramework's handling of sessions and Tornado's secure cookies._
+
+Created because HttpSession is horrible, especially in Google AppEngine. Why store all data server side,
 trying to keep every session in sync across multiple instances, caches, databases, when you
 can safely store all this data on the client's side!
 
-_Inspired by PlayFramework's handling of sessions and Tornado's secure cookies._
+[Download .jar here](https://github.com/SkPhilipp/JSCS/downloads)
 
 Example
 -------
