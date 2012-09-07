@@ -38,3 +38,25 @@ public class JscsServlet extends HttpServlet {
 
 }
 ```
+
+Warnings & Protips
+------------------
+
+1. It's a cookie, cookies are sent in headers, headers are sent before bodies. You cant send
+a header anymore once you start with the body.
+_DO_
+```java
+session.put("user", "philipp@skillable.eu");
+session.save(resp, signer);
+resp.getWriter().print("Welcome");
+```
+_DONT_
+```java
+session.put("user", "philipp@skillable.eu");
+resp.getWriter().print("Welcome");
+session.save(resp, signer);
+```
+2. Don't put sensitive data in it, it's a signed cookie, not an encrypted cookie.
+3. Don't put too much data in it, it's a cookie, and cookies are supposed to have a maximum
+size of 4KB, the signature takes up quite some space, and Base64 encoding it makes this even longer,
+so don't be silly, and keep the cookie small.
