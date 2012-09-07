@@ -5,6 +5,7 @@ import java.util.HashMap;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
 
 public class SignedSession extends HashMap<String, Object> {
 
@@ -38,7 +39,9 @@ public class SignedSession extends HashMap<String, Object> {
 
 	public Cookie toCookie(ObjectSigner signer) {
 		try {
-			return new Cookie(CookieName, new String(signer.toBytes(this)));
+			String string = DatatypeConverter.printBase64Binary(signer
+					.toBytes(this));
+			return new Cookie(CookieName, string);
 		} catch (Exception e) {
 			return null;
 		}
@@ -46,8 +49,9 @@ public class SignedSession extends HashMap<String, Object> {
 
 	public static SignedSession fromCookie(Cookie cookie, ObjectSigner signer) {
 		try {
-			SignedSession session = (SignedSession) signer.fromBytes(cookie
-					.getValue().getBytes());
+			byte[] bytes = DatatypeConverter.parseBase64Binary(cookie
+					.getValue());
+			SignedSession session = (SignedSession) signer.fromBytes(bytes);
 			return session;
 		} catch (Exception e) {
 			return null;
