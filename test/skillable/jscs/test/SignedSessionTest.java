@@ -3,8 +3,6 @@ package skillable.jscs.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import javax.servlet.http.Cookie;
-
 import org.junit.Test;
 
 import skillable.jscs.SignedSession;
@@ -19,8 +17,8 @@ public class SignedSessionTest {
 		session.put("3", 12347);
 
 		try {
-			Cookie cookie = session.toCookie();
-			SignedSession session2 = SignedSession.fromCookie(cookie);
+			SignedSession session2 = SignedSession.fromCookie(session
+					.toCookie());
 			assertEquals(12345, session2.get("1"));
 			assertEquals(12346, session2.get("2"));
 			assertEquals(12347, session2.get("3"));

@@ -5,13 +5,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.SignedObject;
 import java.util.HashMap;
@@ -19,10 +17,9 @@ import java.util.HashMap;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
 
 public class SignedSession extends HashMap<String, Object> {
-
-	private static final long serialVersionUID = 1L;
 
 	private final Long timestamp;
 
@@ -36,46 +33,47 @@ public class SignedSession extends HashMap<String, Object> {
 
 	// -- Static data -------------------------------------
 
-	private static final Charset UTF8;
-	private static final Signature RSA;
+	private static final long serialVersionUID = 1L;
 	private static final String CookieName = "SignedSession";
 	private static final PrivateKey Private;
 	private static final PublicKey Public;
+	private static final Signature PrivateSig;
+	private static final Signature PublicSig;
 
 	static {
 		try {
-			UTF8 = Charset.forName("UTF-8");
-			RSA = Signature.getInstance("SHA1withRSA");
-			// Generating the Public and Private key
-			KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-			keyGen.initialize(1024, random);
+			KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
+			keyGen.initialize(1024);
 			KeyPair pair = keyGen.generateKeyPair();
 			Private = pair.getPrivate();
 			Public = pair.getPublic();
+			PrivateSig = Signature.getInstance(Private.getAlgorithm());
+			PublicSig = Signature.getInstance(Public.getAlgorithm());
 		} catch (Exception e) {
-			throw new AssertionError("SHA1withRSA, or UTF-8 unknown, aborting.");
+			e.printStackTrace();
+			throw new AssertionError("Aborting.");
 		}
 	}
 
 	// -- Serialization and deserialization ---------------
 
 	public Cookie toCookie() throws GeneralSecurityException, IOException {
-		SignedObject signedObject = new SignedObject(this, Private, RSA);
+		SignedObject signedObject = new SignedObject(this, Private, PrivateSig);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = new ObjectOutputStream(baos);
 		oos.writeObject(signedObject);
-		oos.flush();
-		return new Cookie(CookieName, new String(baos.toByteArray(), UTF8));
+		oos.close();
+		return new Cookie(CookieName, DatatypeConverter.printBase64Binary(baos
+				.toByteArray()));
 	}
 
 	public static SignedSession fromCookie(Cookie cookie) throws IOException,
 			ClassNotFoundException, GeneralSecurityException {
-		byte[] data = cookie.getValue().getBytes(UTF8);
+		byte[] data = DatatypeConverter.parseBase64Binary(cookie.getValue());
 		ByteArrayInputStream bais = new ByteArrayInputStream(data);
 		ObjectInputStream ois = new ObjectInputStream(bais);
 		SignedObject signedObject = (SignedObject) ois.readObject();
-		if (signedObject.verify(Public, RSA)) {
+		if (signedObject.verify(Public, PublicSig)) {
 			return (SignedSession) signedObject.getObject();
 		}
 		return null;
