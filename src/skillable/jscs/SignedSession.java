@@ -67,33 +67,27 @@ public class SignedSession extends HashMap<String, Object> {
 
 	/**
 	 * Loads a SignedSession from an HttpServletRequest, verifies it with the
-	 * given ObjectSigner, returns null if there is no SignedSession active.
+	 * given ObjectSigner, creates a new SignedSession if there is none active.
 	 */
-	public static SignedSession load(HttpServletRequest req, ObjectSigner signer) {
-		for (Cookie cookie : req.getCookies()) {
-			if (CookieName.equals(cookie.getName())) {
-				return SignedSession.fromCookie(cookie, signer);
-			}
-		}
-		return null;
+	public static SignedSession get(HttpServletRequest req, ObjectSigner signer) {
+		SignedSession session = SignedSession.find(req, signer);
+		return session == null ? new SignedSession() : session;
 	}
 
 	/**
 	 * Loads a SignedSession from an HttpServletRequest, verifies it with the
-	 * given ObjectSigner.
+	 * given ObjectSigner, returns null if there is no SignedSession active.
 	 */
-	public static SignedSession load(HttpServletRequest req,
-			ObjectSigner signer, boolean create) {
-		for (Cookie cookie : req.getCookies()) {
-			if (CookieName.equals(cookie.getName())) {
-				return SignedSession.fromCookie(cookie, signer);
+	public static SignedSession find(HttpServletRequest req, ObjectSigner signer) {
+		Cookie[] cookies = req.getCookies();
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (CookieName.equals(cookie.getName())) {
+					return SignedSession.fromCookie(cookie, signer);
+				}
 			}
 		}
-		if (create) {
-			return new SignedSession();
-		} else {
-			return null;
-		}
+		return null;
 	}
 
 }
