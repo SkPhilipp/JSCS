@@ -1,15 +1,5 @@
 package skillable.jscs;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.SignedObject;
 import java.util.HashMap;
 
 import javax.servlet.http.Cookie;
@@ -18,8 +8,14 @@ import javax.servlet.http.HttpServletResponse;
 
 public class SignedSession extends HashMap<String, Object> {
 
+	private static final long serialVersionUID = 1L;
+	private static final ObjectSigner signer = new ObjectSigner();
+
 	private final Long timestamp;
 
+	/**
+	 * Returns the timestamp of when the session was created
+	 */
 	public Long getTimestamp() {
 		return timestamp;
 	}
@@ -28,68 +24,56 @@ public class SignedSession extends HashMap<String, Object> {
 		this.timestamp = System.currentTimeMillis();
 	}
 
-	// -- Static data -------------------------------------
+	private static String CookieName = SignedSession.class.getSimpleName();
 
-	private static final long serialVersionUID = 1L;
-	private static final String CookieName = "SignedSession";
-	private static final PrivateKey Private;
-	private static final PublicKey Public;
-	private static final Signature PrivateSig;
-	private static final Signature PublicSig;
-
-	static {
-		try {
-			KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
-			keyGen.initialize(1024);
-			KeyPair pair = keyGen.generateKeyPair();
-			Private = pair.getPrivate();
-			Public = pair.getPublic();
-			PrivateSig = Signature.getInstance(Private.getAlgorithm());
-			PublicSig = Signature.getInstance(Public.getAlgorithm());
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new AssertionError("Aborting.");
+	/**
+	 * Sets the name of the cookie, the cookie name is used by the other methods
+	 * to find and store the cookie.
+	 */
+	public static void setCookieName(String newName) {
+		if (newName == null || newName.length() == 0) {
+			throw new NullPointerException("Name cannot be null or empty");
 		}
+		SignedSession.CookieName = newName;
 	}
 
-	// -- Serialization and deserialization ---------------
-
+	/**
+	 * Converts this object to a Cookie
+	 */
 	public Cookie toCookie() {
 		try {
-			SignedObject signedObject = new SignedObject(this, Private,
-					PrivateSig);
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(baos);
-			oos.writeObject(signedObject);
-			oos.close();
-			return new Cookie(CookieName, new String(baos.toByteArray()));
+			return new Cookie(CookieName, new String(signer.toBytes(this)));
 		} catch (Exception e) {
-			// GeneralSecurityException & IOException: Both should never happen
 			return null;
 		}
 	}
 
+	/**
+	 * Loads a SignedSession from a Cookie
+	 */
 	public static SignedSession fromCookie(Cookie cookie) {
 		try {
-			byte[] data = cookie.getValue().getBytes();
-			ByteArrayInputStream bais = new ByteArrayInputStream(data);
-			ObjectInputStream ois = new ObjectInputStream(bais);
-			SignedObject signedObject = (SignedObject) ois.readObject();
-			if (signedObject.verify(Public, PublicSig)) {
-				return (SignedSession) signedObject.getObject();
-			} else {
-				return null;
-			}
+			return (SignedSession) signer.fromBytes(cookie.getValue()
+					.getBytes());
 		} catch (Exception e) {
-			// GeneralSecurityException & IOException: Both should never happen
 			return null;
 		}
 	}
 
+	/**
+	 * Stores this object into a Cookie which is then added to the given
+	 * HttpServletResponse.
+	 */
 	public void save(HttpServletResponse resp) {
-		resp.addCookie(this.toCookie());
+		try {
+			resp.addCookie(this.toCookie());
+		} catch (Exception e) {
+		}
 	}
 
+	/**
+	 * Loads a SignedSession from an HttpServletRequest.
+	 */
 	public static SignedSession load(HttpServletRequest req) {
 		for (Cookie cookie : req.getCookies()) {
 			if (CookieName.equals(cookie.getName())) {
