@@ -37,20 +37,32 @@ public class SignedSession extends HashMap<String, Object> {
 		SignedSession.CookieName = newName;
 	}
 
-	public Cookie toCookie(ObjectSigner signer) {
+	public String toString(ObjectSigner signer) {
 		try {
 			String string = DatatypeConverter.printBase64Binary(signer
 					.toBytes(this));
-			return new Cookie(CookieName, string);
+			return string;
 		} catch (Exception e) {
 			return null;
 		}
 	}
 
+	public Cookie toCookie(ObjectSigner signer) {
+		String string = this.toString();
+		if (string == null) {
+			return null;
+		} else {
+			return new Cookie(CookieName, string);
+		}
+	}
+
 	public static SignedSession fromCookie(Cookie cookie, ObjectSigner signer) {
+		return SignedSession.fromString(cookie.getValue(), signer);
+	}
+
+	public static SignedSession fromString(String string, ObjectSigner signer) {
 		try {
-			byte[] bytes = DatatypeConverter.parseBase64Binary(cookie
-					.getValue());
+			byte[] bytes = DatatypeConverter.parseBase64Binary(string);
 			SignedSession session = (SignedSession) signer.fromBytes(bytes);
 			return session;
 		} catch (Exception e) {
