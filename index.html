@@ -40,7 +40,7 @@
 <span class="kn">import</span> <span class="nn">javax.servlet.http.HttpServlet</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">javax.servlet.http.HttpServletRequest</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">javax.servlet.http.HttpServletResponse</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">skillable.jscs.ObjectSigner</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">skillable.jscs.SignedSessionFactory</span> <span class="o">;</span>
 <span class="kn">import</span> <span class="nn">skillable.jscs.SignedSession</span><span class="o">;</span>
 
 <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">"serial"</span><span class="o">)</span>
@@ -64,7 +64,7 @@
 <span class="o">}</span>
 </pre></div>
 
-<h2>Note!</h2>
+<h2>Note</h2>
 
 <ol>
 <li>It's a cookie, cookies are sent in headers, headers are sent before the body. You cant send a header anymore once you start with the body.</li>
