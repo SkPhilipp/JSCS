@@ -31,11 +31,7 @@
         <hr>
 
         <section id="main_content">
-          <p>Created because HttpSession is horrible, especially in Google AppEngine. Why store all data server side,
-trying to keep every session in sync across multiple instances, caches, databases, when you
-can safely store all this data on the client's side!</p>
-
-<p><a href="https://github.com/SkPhilipp/JSCS/downloads">Download latest .jar here</a></p>
+          <p>Created because sessions are horrid when it comes to having more than one instance of an application running. Why store all data server side, trying to keep every session in sync across multiple setrver instances, caches, and databases, when you can securely store session datam, on the client's side!</p>
 
 <h2>Example</h2>
 
@@ -68,12 +64,12 @@ can safely store all this data on the client's side!</p>
 <span class="o">}</span>
 </pre></div>
 
-<h2>Warning</h2>
+<h2>Note!</h2>
 
 <ol>
 <li>It's a cookie, cookies are sent in headers, headers are sent before the body. You cant send a header anymore once you start with the body.</li>
 <li>Don't put sensitive data in it, it's a signed cookie, not an encrypted cookie.</li>
-<li>Don't put too much data in it, it's a cookie, and cookies are supposed to have a maximumsize of 4KB, the signature takes up quite some space, and Base64 encoding it makes this even longer, so don't be silly, keep the cookie small.</li>
+<li>Don't put too much data in it, it's a cookie, and cookies are supposed to have a maximum size of 4KB, the signature takes up quite some space, encoding the cookie into a safe format (base64) makes it even longer, so don't be silly, and keep the cookie small.</li>
 </ol>
         </section>
 
