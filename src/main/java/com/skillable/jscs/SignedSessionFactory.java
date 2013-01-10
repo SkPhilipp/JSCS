@@ -1,4 +1,4 @@
-package skillable.jscs;
+package com.skillable.jscs;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;

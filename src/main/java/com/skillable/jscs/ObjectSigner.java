@@ -1,4 +1,4 @@
-package skillable.jscs;
+package com.skillable.jscs;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

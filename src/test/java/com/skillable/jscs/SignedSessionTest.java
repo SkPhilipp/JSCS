@@ -1,4 +1,4 @@
-package skillable.jscs.test;
+package com.skillable.jscs;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -7,8 +7,8 @@ import javax.servlet.http.Cookie;
 
 import org.junit.Test;
 
-import skillable.jscs.SignedSession;
-import skillable.jscs.SignedSessionFactory;
+import com.skillable.jscs.SignedSession;
+import com.skillable.jscs.SignedSessionFactory;
 
 public class SignedSessionTest {
 
