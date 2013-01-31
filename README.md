@@ -1,6 +1,6 @@
-Java Signed Cookie Sessions
-===========================
+Secure Cookie Sessions
+======================
 
-[Github Pages](https://skillable.github.com/JSCS/)
+Read more - at [Rogwel](http://rogwel.org/libraries/)
 
-[![Build Status](https://travis-ci.org/Skillable/JSCS.png?branch=master)](https://travis-ci.org/Skillable/JSCS)
+[![Build Status](https://travis-ci.org/Rogwel/JSCS.png?branch=master)](https://travis-ci.org/Rogwel/JSCS)
