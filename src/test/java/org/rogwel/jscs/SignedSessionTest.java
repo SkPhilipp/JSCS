@@ -1,4 +1,4 @@
-package com.skillable.jscs;
+package org.rogwel.jscs;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -7,8 +7,8 @@ import javax.servlet.http.Cookie;
 
 import org.junit.Test;
 
-import com.skillable.jscs.SignedSession;
-import com.skillable.jscs.SignedSessionFactory;
+import org.rogwel.jscs.SignedSession;
+import org.rogwel.jscs.SignedSessionFactory;
 
 public class SignedSessionTest {
 

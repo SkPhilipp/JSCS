@@ -1,4 +1,4 @@
-package com.skillable.jscs;
+package org.rogwel.jscs;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
