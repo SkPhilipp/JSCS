@@ -29,7 +29,7 @@ You can find the source code at the Github Repository. Feel free to contribute!-
                 resp.getWriter().print("Welcome back, " + session.get("user"));
             }
             else{
-                session.put("user", "philipp@skillable.eu");
+                session.put("user", "philipp");
                 session.addCookie(resp);
                 resp.getWriter().print("Welcome");
             }
